@@ -9,11 +9,17 @@ export default function Home(props) {
   const page = props.match.params.page;
 
   const [items, setItems] = useState([]);
-  const [order, setOrder] = useState("-created_date");
+  const [filter, setFilter] = React.useState(() => {
+    return { init_bid: "", created_date: "-created_date", search: "" };
+  });
   const [paginator, setPaginator] = useState(1);
 
   useEffect(() => {
-    getItems(order, page)
+    const clean_filter = Object.fromEntries(
+      Object.entries(filter).filter(([_, v]) => v !== null && v !== "")
+    );
+
+    getItems(clean_filter, page)
       .then((response) => {
         if (
           response !== undefined &&
@@ -27,12 +33,12 @@ export default function Home(props) {
         }
       })
       .catch((error) => console.error(error));
-  }, [page, order]);
+  }, [page]);
 
   return (
     <div>
       <Container component="main" maxWidth="xs">
-        <Filter />
+        <Filter setFilter={setFilter} filter={filter} />
         {items.length > 0 &&
           items.map((item) => {
             return (

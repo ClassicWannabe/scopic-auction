@@ -27,23 +27,11 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const originalRequest = error.config;
-
-    if (
-      error.response?.status === 401 &&
-      originalRequest.url === BASE_URL + "obtain-token/"
-    ) {
+    if (error.response?.status === 401 || error.response?.status === 403) {
       localStorage.clear();
-      return Promise.reject(error);
+      window.location.href = "/login";
     }
 
-    if (
-      error.response?.status === 401 || error.response?.status === 403
-    ) {
-        localStorage.clear();
-        window.location.href = "/login"
-    }
-    
     return Promise.reject(error);
   }
 );

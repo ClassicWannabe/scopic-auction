@@ -87,12 +87,18 @@ class AuctionItem(models.Model):
 class Bid(models.Model):
     """Model to record the bid amount of the person"""
 
-    auction_item = models.ForeignKey("AuctionItem", related_name="bids", on_delete=models.CASCADE)
-    bidder = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="bids", on_delete=models.CASCADE)
+    auction_item = models.ForeignKey(
+        "AuctionItem", related_name="bids", on_delete=models.CASCADE
+    )
+    bidder = models.ForeignKey(
+        settings.AUTH_USER_MODEL, related_name="bids", on_delete=models.CASCADE
+    )
     bid_amount = models.DecimalField(
         _("bid amount made by the person in USD"), max_digits=8, decimal_places=2
     )
     auto_bidding = models.BooleanField(_("auto bidding function"), default=False)
+    updated_date = models.DateTimeField(auto_now=True)
+    created_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.bidder.username} (ID: {self.bidder.id})"
@@ -101,3 +107,4 @@ class Bid(models.Model):
         ordering = ["-bid_amount"]
         verbose_name = _("Bid")
         verbose_name_plural = _("Bids")
+        unique_together = ("auction_item", "bidder")

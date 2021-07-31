@@ -1,4 +1,4 @@
-from django.contrib.auth import get_user_model, authenticate
+from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
@@ -10,16 +10,31 @@ class CustomUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = get_user_model()
-        fields = ("email", "password", "username", "funds", "max_bid_amount")
+        fields = ("id", "email", "password", "username", "funds", "max_auto_bid_amount")
         extra_kwargs = {"password": {"write_only": True, "min_length": 5}}
 
 
-class BidSerializer(serializers.ModelSerializer):
-    """Serializer for bid objects"""
+class CreateBidSerializer(serializers.ModelSerializer):
+    """Serializer for creating bid objects"""
 
     class Meta:
         model = models.Bid
-        fields = ("bidder", "auction_item", "bid_amount", "auto_bidding")
+        fields = ("id", "bidder", "auction_item", "bid_amount", "auto_bidding")
+        extra_kwargs = {
+            "bidder": {"read_only": True},
+        }
+
+
+class UpdateBidSerializer(serializers.ModelSerializer):
+    """Serializer for updating bid objects"""
+
+    class Meta:
+        model = models.Bid
+        fields = ("id", "bidder", "auction_item", "bid_amount", "auto_bidding")
+        extra_kwargs = {
+            "bidder": {"read_only": True},
+            "auction_item": {"read_only": True},
+        }
 
 
 class AuctionItemSerializer(serializers.ModelSerializer):

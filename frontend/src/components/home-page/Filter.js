@@ -1,9 +1,8 @@
 import React from "react";
 import { makeStyles, withStyles } from "@material-ui/core/styles";
 import InputLabel from "@material-ui/core/InputLabel";
-import MenuItem from "@material-ui/core/MenuItem";
+import TextField from "@material-ui/core/TextField";
 import FormControl from "@material-ui/core/FormControl";
-import Select from "@material-ui/core/Select";
 import NativeSelect from "@material-ui/core/NativeSelect";
 import InputBase from "@material-ui/core/InputBase";
 
@@ -47,52 +46,59 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function FilterSelects() {
+export default function FilterSelects(props) {
   const classes = useStyles();
-  const [dropdown, setDropdown] = React.useState(() => {
-    return { price: "", date: "new" };
+
+  const [filter, setFilter] = React.useState(() => {
+    return { init_bid: "", created_date: "-created_date", search: "" };
   });
+
   const handleChange = (event) => {
     const { name, value } = event.target;
-    setDropdown((prevValues) => {
+    setFilter((prevValues) => {
       return { ...prevValues, [name]: value };
     });
   };
+
   return (
     <div>
-      <FormControl className={classes.margin}>
-        <InputLabel htmlFor="item-title">Name</InputLabel>
-        <BootstrapInput id="item-title" />
-      </FormControl>
-      <FormControl className={classes.margin}>
-        <InputLabel htmlFor="item-description">Description</InputLabel>
-        <BootstrapInput id="item-description" />
-      </FormControl>
+      <TextField
+        variant="outlined"
+        margin="normal"
+        fullWidth
+        id="search"
+        label="Search"
+        name="search"
+        autoComplete="search"
+        autoFocus
+        onChange={handleChange}
+        value={filter.search}
+      />
       <FormControl className={classes.margin}>
         <InputLabel htmlFor="date-ordering">Date</InputLabel>
         <NativeSelect
           id="date-ordering"
-          value={dropdown.date}
-          name="date"
+          value={props.filter.date}
+          name="created_date"
           onChange={handleChange}
           input={<BootstrapInput />}
         >
-          <option value={"new"}>Newest</option>
-          <option value={"old"}>Oldest</option>
+          <option value={"created_date"}>Oldest</option>
+          <option value={"-created_date"}>Newest</option>
         </NativeSelect>
       </FormControl>
       <FormControl className={classes.margin}>
         <InputLabel htmlFor="price-ordering">Price</InputLabel>
         <NativeSelect
           id="price-ordering"
-          value={dropdown.price}
-          name="price"
+          value={filter.init_bid}
+          name="init_bid"
           onChange={handleChange}
           input={<BootstrapInput />}
         >
           <option aria-label="None" value="" />
-          <option value={"ASC"}>ASC</option>
-          <option value={"DESC"}>DESC</option>
+          <option value={"init_bid"}>ASC</option>
+          <option value={"-init_bid"}>DESC</option>
         </NativeSelect>
       </FormControl>
     </div>
