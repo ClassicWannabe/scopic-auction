@@ -7,7 +7,7 @@ import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
-import { getToken, getUserDetails } from "../../authorization/apiCalls";
+import { getToken, getUserDetails } from "../../api/apiCalls";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -49,28 +49,27 @@ export default function Login(props) {
 
     getToken(credentials)
       .then((response) => {
-        if (response && response.status == 200) {
+        if (response && response.status === 200) {
           localStorage.setItem("token", response.data.token);
 
           setCredentials({ username: "", password: "" });
         }
-        return response
+        return response;
       })
       .then((response) => {
         if (response.data?.token) {
           getUserDetails(response.data.token).then((response) => {
-            if (response && response.status == 200) {
+            if (response && response.status === 200) {
               localStorage.setItem("user_id", response.data.id);
               localStorage.setItem(
                 "max_auto_bid",
                 response.data.max_auto_bid_amount
               );
-  
+
               window.location.href = "/";
             }
           });
         }
-        
       })
       .catch((error) => console.error(error));
   }

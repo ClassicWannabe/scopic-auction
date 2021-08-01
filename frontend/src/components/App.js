@@ -1,9 +1,4 @@
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-  Redirect,
-} from "react-router-dom";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import Home from "./home-page/Home";
 import Login from "./login-page/Login";
 import AuctionItemDetail from "./item-detail-page/ItemDetail";
@@ -15,12 +10,12 @@ function App() {
       <Router>
         <Switch>
           <Route path="/login" render={(props) => <Login {...props} />} />
-          <Route path="/" render={(props) => <Home {...props} />} />
-          <Route path="/:page" render={(props) => <Home {...props} />} />
           <Route
             path="/item/:itemId"
             render={(props) => <AuctionItemDetail {...props} />}
           />
+          <Route path="/" render={(props) => <Home {...props} />} />
+          <Route path="/:page" render={(props) => <Home {...props} />} />
         </Switch>
       </Router>
     </div>

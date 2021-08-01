@@ -1,5 +1,4 @@
 from django.contrib.auth import get_user_model
-from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
 from . import models
@@ -11,7 +10,11 @@ class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
         fields = ("id", "email", "password", "username", "funds", "max_auto_bid_amount")
-        extra_kwargs = {"password": {"write_only": True, "min_length": 5}}
+        extra_kwargs = {
+            "password": {"write_only": True, "min_length": 5},
+            "id": {"read_only": True},
+            "funds": {"read_only": True},
+        }
 
 
 class CreateBidSerializer(serializers.ModelSerializer):
@@ -20,9 +23,7 @@ class CreateBidSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Bid
         fields = ("id", "bidder", "auction_item", "bid_amount", "auto_bidding")
-        extra_kwargs = {
-            "bidder": {"read_only": True},
-        }
+        read_only_fields = ("id", "bidder")
 
 
 class UpdateBidSerializer(serializers.ModelSerializer):
@@ -31,10 +32,7 @@ class UpdateBidSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Bid
         fields = ("id", "bidder", "auction_item", "bid_amount", "auto_bidding")
-        extra_kwargs = {
-            "bidder": {"read_only": True},
-            "auction_item": {"read_only": True},
-        }
+        read_only_fields = ("id", "bidder", "auction_item")
 
 
 class AuctionItemSerializer(serializers.ModelSerializer):
@@ -51,5 +49,6 @@ class AuctionItemSerializer(serializers.ModelSerializer):
             "bid_close_date",
             "created_date",
             "compressed_picture",
+            "bids",
         )
-        read_only_fields = ("id", "bidders", "created_date")
+        read_only_fields = ("id", "bidders", "created_date", "bid_close_date")

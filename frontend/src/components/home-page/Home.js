@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import Container from "@material-ui/core/Container";
-import AuctionItem from "./AuctionItem";
+import Grid from "@material-ui/core/Grid";
+import AuctionItem from "./ItemList";
 import Filter from "./Filter";
 import Pagination from "../helpers/Pagination";
-import { getItems } from "../../authorization/apiCalls";
+import { getItems } from "../../api/apiCalls";
+import "./Home.css";
 
 export default function Home(props) {
   const page = props.match.params.page;
@@ -15,11 +17,22 @@ export default function Home(props) {
   const [paginator, setPaginator] = useState(1);
 
   useEffect(() => {
-    const clean_filter = Object.fromEntries(
+    const cleanFilter = Object.fromEntries(
       Object.entries(filter).filter(([_, v]) => v !== null && v !== "")
     );
+    if (cleanFilter.init_bid && cleanFilter.created_date) {
+      cleanFilter.ordering = `${cleanFilter.init_bid},${cleanFilter.created_date}`;
+      delete cleanFilter.init_bid;
+      delete cleanFilter.created_date;
+    } else if (cleanFilter.init_bid) {
+      cleanFilter.ordering = cleanFilter.init_bid;
+      delete cleanFilter.init_bid;
+    } else if (cleanFilter.created_date) {
+      cleanFilter.ordering = cleanFilter.created_date;
+      delete cleanFilter.created_date;
+    }
 
-    getItems(clean_filter, page)
+    getItems(cleanFilter, page)
       .then((response) => {
         if (
           response !== undefined &&
@@ -33,25 +46,28 @@ export default function Home(props) {
         }
       })
       .catch((error) => console.error(error));
-  }, [page]);
+  }, [page, filter]);
 
   return (
-    <div>
-      <Container component="main" maxWidth="xs">
-        <Filter setFilter={setFilter} filter={filter} />
+    <Container component="main">
+      <Filter setFilter={setFilter} />
+      <Grid container spacing={3} justifyContent="center">
         {items.length > 0 &&
           items.map((item) => {
             return (
               <AuctionItem
+                {...props}
                 key={item.id}
+                id={item.id}
                 title={item.title}
                 description={item.description}
-                compressed_picture={item.compressed_picture}
+                compressedPicture={item.compressed_picture}
+                initBid={item.init_bid}
               />
             );
           })}
-        <Pagination {...props} count={paginator} />
-      </Container>
-    </div>
+      </Grid>
+      <Pagination {...props} count={paginator} />
+    </Container>
   );
 }

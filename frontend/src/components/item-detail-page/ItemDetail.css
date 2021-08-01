@@ -1,0 +1,26 @@
+.item-detail {
+  margin-top: 40px;
+}
+
+.item-detail .item-picture {
+  max-width: 100%;
+}
+
+.item-detail .to-left {
+  text-align: left;
+}
+
+.item-detail .bid-input {
+  margin-top: 20px;
+}
+
+.item-detail .bid-submit {
+  margin: 12px 0;
+}
+
+@media screen and (min-width: 960px) {
+  .item-detail .bid-card {
+    position: fixed;
+    top: 40px;
+  }
+}

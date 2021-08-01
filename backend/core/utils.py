@@ -1,5 +1,6 @@
 from collections import OrderedDict
 from decimal import Decimal
+from datetime import datetime, timezone
 
 from django.db.models import Max
 from django.db.models.query import QuerySet
@@ -9,6 +10,7 @@ from rest_framework.response import Response
 from rest_framework.serializers import Serializer
 
 from . import models
+from .exceptions import AuctionItemExpired
 
 
 class StandardResultsSetPagination(PageNumberPagination):
@@ -32,7 +34,7 @@ class StandardResultsSetPagination(PageNumberPagination):
         )
 
 
-class ChangeBidMixin:
+class BaseBidMixin:
     """
     Mixin thath helps perform necessary checks and changes
     when dealing with `Bid` model
@@ -45,6 +47,20 @@ class ChangeBidMixin:
             auction_item=serializer.validated_data["auction_item"],
         )
         return user_bid.exists()
+
+    def auction_ended(
+        self, serializer: Serializer, instance: models.Bid = None
+    ) -> None:
+        """Check if the auction ended to raise an exception"""
+        if instance is None:
+            auction_item = serializer.validated_data["auction_item"]
+        else:
+            auction_item = instance.auction_item
+
+        current_date = datetime.now(timezone.utc)
+
+        if auction_item and auction_item.bid_close_date < current_date:
+            raise AuctionItemExpired(auction_item.bid_close_date, current_date)
 
     def bid_amount_too_low(
         self, serializer: Serializer, queryset: QuerySet, instance: models.Bid = None
@@ -74,6 +90,18 @@ class ChangeBidMixin:
 
         return False
 
+    def get_current_bid(
+        self, queryset: QuerySet, serializer: Serializer, instance: models.Bid = None
+    ):
+        """Get current bid on the item with the highest bid amount"""
+        if instance:
+            return queryset.filter(auction_item=instance.auction_item)[0]
+
+        current_bids = queryset.filter(
+            auction_item=serializer.validated_data.get("auction_item")
+        )
+        return current_bids[0] if current_bids.exists() else None
+
     def deducted_funds(self, user: models.CustomUser) -> Decimal:
         """Calculate user's funds after deduction to make for creating or changing the bid"""
         queryset = self.get_queryset()
@@ -97,7 +125,6 @@ class ChangeBidMixin:
         cur_bid = bid_amount
 
         if instance:
-            print(instance)
             prev_bid = instance.bid_amount
 
             if deducted_funds - (cur_bid - prev_bid) < 0:
@@ -109,15 +136,28 @@ class ChangeBidMixin:
         return False
 
     def wrong_max_auto_bid_amount(
-        self, user: models.CustomUser, bid_amount: Decimal
+        self,
+        user: models.CustomUser,
+        current_bid: models.Bid,
+        bid_amount: Decimal = None,
     ) -> bool:
         """Check if maximum auto bid amount is less than user's bid + 1"""
-        if user.max_auto_bid_amount < bid_amount + 1:
+        if bid_amount and user.max_auto_bid_amount < bid_amount + 1:
+            return True
+        elif current_bid and user.max_auto_bid_amount < current_bid.bid_amount + 1:
             return True
         return False
 
+
+class AutoBidMixin(BaseBidMixin):
+    """Mixin that helps to implement auto-bidding functionality"""
+
     def auto_bid(
-        self, serializer: Serializer, queryset: QuerySet, instance: models.Bid = None
+        self,
+        serializer: Serializer,
+        queryset: QuerySet,
+        instance: models.Bid = None,
+        current_bid: models.Bid = None,
     ) -> None:
         """Compare and make necessary changes if another user turned on auto bidding"""
         if instance is None:
@@ -155,6 +195,8 @@ class ChangeBidMixin:
                     other_user_max_auto_bid_amount,
                     other_user_auto_bid,
                 )
+        elif current_bid and current_bid.bidder != self.request.user:
+            serializer.validated_data["bid_amount"] = current_bid.bid_amount + 1
 
     def _auto_bid_in_favor_of_requested_user(
         self,
@@ -170,11 +212,11 @@ class ChangeBidMixin:
         else:
             serializer.validated_data["bid_amount"] = user_max_auto_bid_amount
 
-            if not self.not_enough_funds(
-                serializer.validated_data["bid_amount"], self.request.user, instance
-            ):
-                other_user_auto_bid.auto_bidding = False
-                other_user_auto_bid.save()
+        if not self.not_enough_funds(
+            serializer.validated_data["bid_amount"], self.request.user, instance
+        ):
+            other_user_auto_bid.auto_bidding = False
+            other_user_auto_bid.save()
 
     def _auto_bid_in_favor_of_other_user(
         self,

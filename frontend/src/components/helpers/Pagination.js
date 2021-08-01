@@ -6,7 +6,10 @@ import Pagination from "@material-ui/lab/Pagination";
 const useStyles = makeStyles((theme) => ({
   root: {
     "& > * + *": {
-      marginTop: theme.spacing(2),
+      marginTop: theme.spacing(3),
+      marginBottom: theme.spacing(3),
+      display: "flex",
+      justifyContent: "center",
     },
   },
 }));
@@ -21,7 +24,9 @@ export default function PaginationControlled(props) {
 
   return (
     <div className={classes.root}>
-      <Typography>Page: {page}</Typography>
+      <Typography classes={{ root: "pagination-page-text" }}>
+        Page: {page}
+      </Typography>
       <Pagination
         count={props.count}
         page={page}

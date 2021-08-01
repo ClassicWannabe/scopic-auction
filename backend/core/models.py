@@ -29,12 +29,15 @@ class CustomUser(AbstractUser):
 
     REQUIRED_FIELDS = []
 
+    def __str__(self):
+        return f"{self.username} (ID: {self.id})"
+
 
 class AuctionItem(models.Model):
     """Auction item model to be used for bidding"""
 
     title = models.CharField(_("item title"), max_length=255)
-    description = models.TextField(_("item description"), max_length=1000)
+    description = models.TextField(_("item description"), max_length=3000)
     init_bid = models.DecimalField(
         _("initial bid amount in USD"), max_digits=8, decimal_places=2
     )
@@ -79,13 +82,13 @@ class AuctionItem(models.Model):
         super().save(*args, **kwargs)
 
     class Meta:
-        ordering = ["created_date", "title", "description"]
+        ordering = ["-created_date", "title", "description"]
         verbose_name = _("Auction item")
         verbose_name_plural = _("Auction items")
 
 
 class Bid(models.Model):
-    """Model to record the bid amount of the person"""
+    """Model to record the bid amount of the user"""
 
     auction_item = models.ForeignKey(
         "AuctionItem", related_name="bids", on_delete=models.CASCADE
@@ -94,7 +97,7 @@ class Bid(models.Model):
         settings.AUTH_USER_MODEL, related_name="bids", on_delete=models.CASCADE
     )
     bid_amount = models.DecimalField(
-        _("bid amount made by the person in USD"), max_digits=8, decimal_places=2
+        _("bid amount in USD"), max_digits=8, decimal_places=2
     )
     auto_bidding = models.BooleanField(_("auto bidding function"), default=False)
     updated_date = models.DateTimeField(auto_now=True)

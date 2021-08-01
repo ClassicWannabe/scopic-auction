@@ -130,6 +130,8 @@ USE_TZ = True
 STATIC_URL = "/static/"
 MEDIA_URL = "/media/"
 
+STATICFILES_DIRS = [BASE_DIR / "frontend/build/static"]
+
 STATIC_ROOT = "static_root"
 MEDIA_ROOT = "media_root"
 
@@ -146,8 +148,8 @@ CORS_ALLOWED_ORIGINS = ["http://localhost:3000"]
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework.authentication.BasicAuthentication",
         "rest_framework.authentication.TokenAuthentication",
+        "rest_framework.authentication.BasicAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
 }

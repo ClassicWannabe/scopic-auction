@@ -21,7 +21,7 @@ class AuctionItemAdminForm(forms.ModelForm):
 class AuctionItemAdmin(admin.ModelAdmin):
     inlines = [BidInline]
     form = AuctionItemAdminForm
-    list_display = ["title", "bid_close_date"]
+    list_display = ["title", "bid_close_date", "created_date"]
     search_fields = ["title"]
 
 
@@ -30,7 +30,7 @@ class CustomUserAdmin(UserAdmin):
     model = models.CustomUser
     filter_horizontal = ("groups",)
     list_display = (
-        "username",
+        "__str__",
         "is_staff",
         "is_active",
     )
