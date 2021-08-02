@@ -14,7 +14,7 @@ function App() {
             path="/item/:itemId"
             render={(props) => <AuctionItemDetail {...props} />}
           />
-          <Route path="/" render={(props) => <Home {...props} />} />
+          <Route exact path="/" render={(props) => <Home {...props} />} />
           <Route path="/:page" render={(props) => <Home {...props} />} />
         </Switch>
       </Router>
