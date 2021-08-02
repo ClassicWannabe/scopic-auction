@@ -11,5 +11,6 @@ class AuctionItemExpired(Exception):
     """
 
     def __init__(self, close_date: datetime, current_date: datetime) -> None:
-        self.message = f"Auction already ended for the item: current date - {current_date}, auction close date - {close_date}"
+        self.message = f"""Auction already ended for the item: 
+        current date - {current_date}, auction close date - {close_date}"""
         super().__init__(self.message)

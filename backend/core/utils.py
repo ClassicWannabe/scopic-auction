@@ -5,8 +5,7 @@ from datetime import datetime, timezone
 from django.db.models import Max
 from django.db.models.query import QuerySet
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.response import Response
-from rest_framework.response import Response
+from rest_framework.response import Response    
 from rest_framework.serializers import Serializer
 
 from . import models
@@ -135,27 +134,30 @@ class BaseBidMixin:
 
         return False
 
+
+class AutoBidMixin(BaseBidMixin):
+    """Mixin that helps to implement auto-bidding functionality"""
+
     def wrong_max_auto_bid_amount(
         self,
         user: models.CustomUser,
         current_bid: models.Bid,
+        auto_bidding: bool,
         bid_amount: Decimal = None,
     ) -> bool:
-        """Check if maximum auto bid amount is less than user's bid + 1"""
-        if bid_amount and user.max_auto_bid_amount < bid_amount + 1:
-            return True
-        elif current_bid and user.max_auto_bid_amount < current_bid.bid_amount + 1:
-            return True
+        """Check if maximum auto bid amount is less than user's bid + 1 or highest bid + 1"""
+        if auto_bidding:
+            if bid_amount and user.max_auto_bid_amount < bid_amount + 1:
+                return True
+            elif current_bid and user.max_auto_bid_amount < current_bid.bid_amount + 1:
+                return True
         return False
-
-
-class AutoBidMixin(BaseBidMixin):
-    """Mixin that helps to implement auto-bidding functionality"""
 
     def auto_bid(
         self,
         serializer: Serializer,
         queryset: QuerySet,
+        auto_bidding: bool,
         instance: models.Bid = None,
         current_bid: models.Bid = None,
     ) -> None:
@@ -172,7 +174,7 @@ class AutoBidMixin(BaseBidMixin):
             .order_by("-bidder__max_auto_bid_amount")
         )
 
-        if other_user_auto_bids.exists():
+        if auto_bidding and other_user_auto_bids.exists():
             other_user_auto_bid = other_user_auto_bids[0]
 
             user_max_auto_bid_amount = self.request.user.max_auto_bid_amount
@@ -195,6 +197,22 @@ class AutoBidMixin(BaseBidMixin):
                     other_user_max_auto_bid_amount,
                     other_user_auto_bid,
                 )
+        elif other_user_auto_bids.exists():
+            other_user_auto_bid = other_user_auto_bids[0]
+            other_user_max_auto_bid_amount = (
+                other_user_auto_bid.bidder.max_auto_bid_amount
+            )
+            user_bid_amount = serializer.validated_data["bid_amount"]
+            if user_bid_amount + 1 < other_user_max_auto_bid_amount:
+                other_user_bid_amount = user_bid_amount + 1
+                auto_bidding = True
+            elif user_bid_amount + 1 > other_user_max_auto_bid_amount:
+                other_user_bid_amount = None
+                auto_bidding = False
+            else:
+                other_user_bid_amount = user_bid_amount + 1
+                auto_bidding = False
+            self.update_bid(other_user_auto_bid, other_user_bid_amount, auto_bidding)
         elif current_bid and current_bid.bidder != self.request.user:
             serializer.validated_data["bid_amount"] = current_bid.bid_amount + 1
 
@@ -215,8 +233,7 @@ class AutoBidMixin(BaseBidMixin):
         if not self.not_enough_funds(
             serializer.validated_data["bid_amount"], self.request.user, instance
         ):
-            other_user_auto_bid.auto_bidding = False
-            other_user_auto_bid.save()
+            self.update_bid(other_user_auto_bid)
 
     def _auto_bid_in_favor_of_other_user(
         self,
@@ -237,6 +254,15 @@ class AutoBidMixin(BaseBidMixin):
             other_user_auto_bid.bidder,
             other_user_auto_bid,
         ):
-            other_user_auto_bid.bid_amount = other_user_bid_amount
-            other_user_auto_bid.auto_bidding = other_user_auto_bidding
-            other_user_auto_bid.save()
+            self.update_bid(
+                other_user_auto_bid, other_user_bid_amount, other_user_auto_bidding
+            )
+
+    def update_bid(
+        self, bid: models.Bid, bid_amount: Decimal = None, auto_bidding: bool = False
+    ) -> None:
+        """Update the bid in DB"""
+        if bid_amount:
+            bid.bid_amount = bid_amount
+        bid.auto_bidding = auto_bidding
+        bid.save()

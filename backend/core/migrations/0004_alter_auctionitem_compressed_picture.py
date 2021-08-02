@@ -6,13 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0003_auto_20210730_1605'),
+        ("core", "0003_auto_20210730_1605"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='auctionitem',
-            name='compressed_picture',
-            field=models.ImageField(blank=True, upload_to='auction_items/%Y/%m/%d', verbose_name='item compressed picture'),
+            model_name="auctionitem",
+            name="compressed_picture",
+            field=models.ImageField(
+                blank=True,
+                upload_to="auction_items/%Y/%m/%d",
+                verbose_name="item compressed picture",
+            ),
         ),
     ]

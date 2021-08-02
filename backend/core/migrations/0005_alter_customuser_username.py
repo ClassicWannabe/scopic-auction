@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0004_alter_auctionitem_compressed_picture'),
+        ("core", "0004_alter_auctionitem_compressed_picture"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='customuser',
-            name='username',
-            field=models.CharField(max_length=40, unique=True, verbose_name='username'),
+            model_name="customuser",
+            name="username",
+            field=models.CharField(max_length=40, unique=True, verbose_name="username"),
         ),
     ]

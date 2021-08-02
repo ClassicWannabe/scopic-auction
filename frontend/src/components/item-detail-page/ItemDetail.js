@@ -135,7 +135,6 @@ export default function ItemDetail(props) {
       makeBid(data, { id: userBid.id })
         .then((response) => {
           if (response && response.status === 200) {
-            setTrigger(!trigger);
             handleError("newBid", false, "");
           }
         })
@@ -143,7 +142,8 @@ export default function ItemDetail(props) {
           if (error.response?.data?.message) {
             handleError("newBid", true, error.response.data.message);
           }
-        });
+        })
+        .finally(() => setTrigger(!trigger));
     } else {
       const data = {
         auction_item: id,
@@ -153,7 +153,6 @@ export default function ItemDetail(props) {
       makeBid(data, { create: true })
         .then((response) => {
           if (response && response.status === 201) {
-            setTrigger(!trigger);
             handleError("newBid", false, "");
           }
         })
@@ -161,7 +160,8 @@ export default function ItemDetail(props) {
           if (error.response?.data?.message) {
             handleError("newBid", true, error.response.data.message);
           }
-        });
+        })
+        .finally(() => setTrigger(!trigger));
     }
   };
 
@@ -188,7 +188,6 @@ export default function ItemDetail(props) {
             makeBid({ auto_bidding: autoBidding }, { id: userBid.id })
               .then((response) => {
                 if (response && response.status === 200) {
-                  setTrigger(!trigger);
                   handleError(
                     "maxBid",
                     false,
@@ -205,7 +204,8 @@ export default function ItemDetail(props) {
           }
         }
       })
-      .catch((error) => console.error(error));
+      .catch((error) => console.error(error))
+      .finally(() => setTrigger(!trigger));
   };
 
   useEffect(() => {

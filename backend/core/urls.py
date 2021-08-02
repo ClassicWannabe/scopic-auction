@@ -12,6 +12,6 @@ app_name = "core"
 
 urlpatterns = [
     path("obtain-token/", obtain_auth_token, name="token"),
-    path("user/", views.CustomUserDetail.as_view(), name="user_detail"),
+    path("user/", views.CustomUserDetail.as_view(), name="user"),
     path("", include(router.urls)),
 ]

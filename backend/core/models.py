@@ -13,13 +13,13 @@ class CustomUser(AbstractUser):
     username = models.CharField(_("username"), max_length=40, unique=True)
     funds = models.DecimalField(
         _("current funds on the account in USD"),
-        max_digits=8,
+        max_digits=10,
         decimal_places=2,
         default=0,
     )
     max_auto_bid_amount = models.DecimalField(
         _("max bid amount in USD"),
-        max_digits=8,
+        max_digits=10,
         decimal_places=2,
         default=0,
         help_text=_(
@@ -39,7 +39,7 @@ class AuctionItem(models.Model):
     title = models.CharField(_("item title"), max_length=255)
     description = models.TextField(_("item description"), max_length=3000)
     init_bid = models.DecimalField(
-        _("initial bid amount in USD"), max_digits=8, decimal_places=2
+        _("initial bid amount in USD"), max_digits=10, decimal_places=2
     )
     bidders = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
@@ -49,9 +49,9 @@ class AuctionItem(models.Model):
     )
     bid_close_date = models.DateTimeField(_("bid close date for the item"))
     created_date = models.DateTimeField(_("item creation date"), auto_now_add=True)
-    picture = models.ImageField(_("item picture"), upload_to="auction_items/%Y/%m/%d")
+    picture = models.ImageField(_("item picture"), upload_to="auction_items/")
     compressed_picture = models.ImageField(
-        _("item compressed picture"), upload_to="auction_items/%Y/%m/%d", blank=True
+        _("item compressed picture"), upload_to="auction_items/", blank=True
     )
 
     _original_picture = None
@@ -97,7 +97,7 @@ class Bid(models.Model):
         settings.AUTH_USER_MODEL, related_name="bids", on_delete=models.CASCADE
     )
     bid_amount = models.DecimalField(
-        _("bid amount in USD"), max_digits=8, decimal_places=2
+        _("bid amount in USD"), max_digits=10, decimal_places=2
     )
     auto_bidding = models.BooleanField(_("auto bidding function"), default=False)
     updated_date = models.DateTimeField(auto_now=True)

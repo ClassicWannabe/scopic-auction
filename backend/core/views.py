@@ -94,16 +94,15 @@ class BidViewSet(
                 {"message": "Bid already exists"}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        if auto_bidding:
-            if self.wrong_max_auto_bid_amount(
-                self.request.user, current_bid, bid_amount
-            ):
-                return Response(
-                    {"message": "Auto bid amount is too low"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+        if self.wrong_max_auto_bid_amount(
+            self.request.user, current_bid, auto_bidding, bid_amount
+        ):
+            return Response(
+                {"message": "Auto bid amount is too low"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-            self.auto_bid(serializer, queryset, current_bid=current_bid)
+        self.auto_bid(serializer, queryset, auto_bidding, current_bid=current_bid)
 
         if bid_amount:
             if self.bid_amount_too_low(serializer, queryset):
@@ -142,16 +141,15 @@ class BidViewSet(
         bid_amount = serializer.validated_data.get("bid_amount", None)
         auto_bidding = serializer.validated_data.get("auto_bidding", None)
 
-        if auto_bidding:
-            if self.wrong_max_auto_bid_amount(
-                self.request.user, current_bid, bid_amount
-            ):
-                return Response(
-                    {"message": "Auto bid amount is too low"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+        if self.wrong_max_auto_bid_amount(
+            self.request.user, current_bid, auto_bidding, bid_amount
+        ):
+            return Response(
+                {"message": "Auto bid amount is too low"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-            self.auto_bid(serializer, queryset, instance, current_bid)
+        self.auto_bid(serializer, queryset, auto_bidding, instance, current_bid)
 
         bid_amount = serializer.validated_data.get("bid_amount", None)
 

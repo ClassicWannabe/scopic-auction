@@ -1,4 +1,3 @@
-from datetime import datetime
 from decimal import Decimal
 import pytest
 
@@ -42,12 +41,12 @@ class AuctionItemTests:
 
     def test_create_auction_item_successful(self):
         """Test that creation of a new auction item is successful"""
-        picture = SimpleUploadedFile("picture.jpeg", b"file_content")
+        picture = SimpleUploadedFile("testfile.jpeg", b"file_content")
         auction_item = models.AuctionItem.objects.create(
             title="title",
             description="description",
             init_bid=2.99,
-            bid_close_date=datetime.now(),
+            bid_close_date="2021-08-02",
             picture=picture,
         )
 
@@ -58,3 +57,53 @@ class AuctionItemTests:
         assert Decimal(f"{auction_item.init_bid:.2f}") == item.init_bid
         assert auction_item.picture == item.picture
 
+    def test_auction_item_str(self, create_auction_item):
+        """Test `AuctionItem` object string representation"""
+        auction_item = create_auction_item(title="My Awesome Title")
+
+        assert str(auction_item) == auction_item.title
+
+    def test_auction_item_order(self, create_auction_item):
+        """Test `AuctionItem` objects order"""
+        auction_item1 = create_auction_item()
+        auction_item2 = create_auction_item()
+        auction_item3 = create_auction_item()
+
+        items = models.AuctionItem.objects.all()
+
+        assert items[0] == auction_item3
+        assert items[1] == auction_item2
+        assert items[2] == auction_item1
+
+
+class BidTests:
+    """Tests for `Bid` model"""
+
+    def test_create_bid_successful(self, create_bid):
+        """Test that creation of a new bid is successful"""
+        bid = create_bid()
+
+        bids = models.Bid.objects.all()
+
+        assert bid == bids[0]
+
+    def test_bid_str(self, create_bid, django_user_model):
+        """Test `Bid` object string representation"""
+        user = django_user_model.objects.create(
+            username="ClassicWannabe", password="password"
+        )
+        bid = create_bid(bidder=user)
+
+        assert str(bid) == f"{user.username} (ID: {user.id})"
+
+    def test_bid_order(self, create_bid):
+        """Test `Bid` objects order"""
+        bid1 = create_bid(bid_amount=10)
+        bid2 = create_bid(bid_amount=10.5)
+        bid3 = create_bid(bid_amount=1)
+
+        items = models.Bid.objects.all()
+
+        assert items[0] == bid2
+        assert items[1] == bid1
+        assert items[2] == bid3

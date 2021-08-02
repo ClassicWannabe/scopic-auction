@@ -7,19 +7,21 @@ import django.utils.timezone
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0005_alter_customuser_username'),
+        ("core", "0005_alter_customuser_username"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='bid',
-            name='created_date',
-            field=models.DateTimeField(auto_now_add=True, default=django.utils.timezone.now),
+            model_name="bid",
+            name="created_date",
+            field=models.DateTimeField(
+                auto_now_add=True, default=django.utils.timezone.now
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='bid',
-            name='updated_date',
+            model_name="bid",
+            name="updated_date",
             field=models.DateTimeField(auto_now=True),
         ),
     ]
