@@ -38,6 +38,10 @@ DB_NAME=...
 DB_USER=...
 DB_PASS=...
 ```
+* Create admin user to log in to the admin panel:  
+```
+$ python manage.py createsuperuser
+```
 Frontend:
 * Go to frontend application:
 ```
@@ -55,4 +59,4 @@ Run local server from the backend folder application:
 ```
 $ python manage.py runserver
 ```
-Open http://127.0.0.1:8000/ in the browser of your choice.
+Open http://127.0.0.1:8000/ in the browser of your choice. To access the admin panel go to http://127.0.0.1:8000/trYmXDMI9XA7G9ce6wD4Su+yFfTDET1p8QW46hCyYTI=/
