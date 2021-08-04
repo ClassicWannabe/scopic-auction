@@ -67,7 +67,7 @@ export default function Home(props) {
             );
           })}
       </Grid>
-      <Pagination {...props} count={paginator} />
+      <Pagination {...props} count={paginator} page={page} />
     </Container>
   );
 }
