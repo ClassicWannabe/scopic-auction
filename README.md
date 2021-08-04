@@ -61,7 +61,7 @@ $ python manage.py runserver
 ```
 Open http://127.0.0.1:8000/ in the browser of your choice. To access the admin panel go to http://127.0.0.1:8000/trYmXDMI9XA7G9ce6wD4Su+yFfTDET1p8QW46hCyYTI=/
 
-To populate fake data in DB you can run the following command:  
+To populate DB with fake data you can run the following command:  
 ```
 $ python populate.py
 ```

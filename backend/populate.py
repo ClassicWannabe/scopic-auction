@@ -16,9 +16,6 @@ from faker import Faker
 
 from django.db import IntegrityError
 from django.contrib.auth import get_user_model
-from django.core.files.images import ImageFile
-from django.core.files import File
-from django.conf import settings
 
 from core import models
 
@@ -65,10 +62,8 @@ def populate(N=5):
             datetime_end=datetime(2021, 8, 8, 11, 0, 0),
         )
         fake_init_bid = randint(10, 90)
-        fake_image_path = "/auction_items/"
-        # fake_image = ImageFile(open(f"auction_items/{randint(1,5)}.jpg", "rb"))
 
-        item = models.AuctionItem.objects.create(
+        models.AuctionItem.objects.create(
             title=fake_title,
             description=fake_description,
             init_bid=fake_init_bid,
@@ -76,9 +71,6 @@ def populate(N=5):
             picture=f"auction_items/fake-{randint(1,5)}.jpg",
             compressed_picture=f"auction_items/fake-{randint(1,5)}.jpg",
         )
-        
-
-
 
 
 if __name__ == "__main__":
